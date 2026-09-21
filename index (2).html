@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICT Bozor Tahlilchisi — XAU/USD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root{
+    --bg:#0e0c09;
+    --panel:#161310;
+    --panel-alt:#1d1a15;
+    --border:#2c281f;
+    --border-soft:#221f19;
+    --text:#ece5d6;
+    --text-dim:#9c9184;
+    --text-faint:#6b6355;
+    --gold:#c9a15a;
+    --gold-dim:#8a744a;
+    --green:#5aa579;
+    --green-dim:#2c4636;
+    --red:#c66a5b;
+    --red-dim:#4a2e28;
+    --blue:#7fa3c4;
+    --radius:3px;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Space Grotesk',system-ui,sans-serif;
+  }
+  :root[data-theme="light"]{
+    --bg:#f3f0e8;
+    --panel:#ffffff;
+    --panel-alt:#eae5d8;
+    --border:#d9d2bf;
+    --border-soft:#e3ddcc;
+    --text:#241f16;
+    --text-dim:#5c5648;
+    --text-faint:#8a8272;
+    --gold:#9c7a34;
+    --gold-dim:#b8975c;
+    --green:#2f7a52;
+    --green-dim:#d7ecdf;
+    --red:#a8402f;
+    --red-dim:#f3ddd7;
+    --blue:#3d6690;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    line-height:1.45;
+  }
+  ::selection{background:var(--gold-dim);color:#000;}
+  .wrap{max-width:1400px;margin:0 auto;padding:0 20px 40px;}
+
+  /* ---------- header ---------- */
+  header{
+    border-bottom:1px solid var(--border);
+    padding:18px 20px;
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:12px;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand .mark{
+    font-family:var(--mono);font-size:13px;color:var(--bg);
+    background:var(--gold);padding:3px 7px;border-radius:2px;font-weight:700;letter-spacing:.02em;
+  }
+  .brand h1{font-size:19px;margin:0;font-weight:600;letter-spacing:-0.01em;}
+  .brand .sub{font-size:12.5px;color:var(--text-faint);font-family:var(--mono);}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .badge{
+    font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:2px;
+    border:1px solid var(--border);color:var(--text-dim);white-space:nowrap;
+  }
+  .badge.trend-bullish{color:var(--green);border-color:var(--green-dim);}
+  .badge.trend-bearish{color:var(--red);border-color:var(--red-dim);}
+  .badge.zone-premium{color:var(--red);}
+  .badge.zone-discount{color:var(--green);}
+  .badge.zone-equilibrium{color:var(--gold);}
+
+  /* ---------- input screen ---------- */
+  #inputScreen{padding:48px 20px 20px;max-width:840px;margin:0 auto;}
+  .intro-eyebrow{font-family:var(--mono);font-size:12px;color:var(--gold);margin-bottom:10px;}
+  #inputScreen h2{font-size:26px;margin:0 0 8px;font-weight:600;letter-spacing:-0.01em;max-width:520px;}
+  #inputScreen p.lead{color:var(--text-dim);max-width:560px;margin:0 0 30px;font-size:14.5px;}
+
+  .source-tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--border);}
+  .source-tab{
+    background:none;border:none;color:var(--text-faint);font-family:var(--sans);
+    font-size:14px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  .source-tab.active{color:var(--text);border-bottom-color:var(--gold);}
+  .source-pane{display:none;}
+  .source-pane.active{display:block;}
+
+  .demo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px;}
+  .demo-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px;cursor:pointer;text-align:left;color:var(--text);font-family:var(--sans);
+  }
+  .demo-card:hover{border-color:var(--gold-dim);}
+  .demo-card .tf{font-family:var(--mono);color:var(--gold);font-size:13px;margin-bottom:6px;display:block;}
+  .demo-card .desc{font-size:12.5px;color:var(--text-faint);}
+
+  textarea#csvInput{
+    width:100%;min-height:150px;background:var(--panel);border:1px solid var(--border);
+    color:var(--text);font-family:var(--mono);font-size:12.5px;border-radius:var(--radius);
+    padding:12px;resize:vertical;
+  }
+  .format-hint{font-size:12px;color:var(--text-faint);margin:8px 0 16px;font-family:var(--mono);}
+  .file-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  input[type=file]{color:var(--text-dim);font-size:13px;}
+
+  .btn{
+    font-family:var(--sans);font-size:14px;font-weight:500;padding:11px 22px;
+    border-radius:var(--radius);border:1px solid var(--gold);background:var(--gold);
+    color:#171208;cursor:pointer;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn.secondary{background:transparent;color:var(--text);border-color:var(--border);}
+  .btn.secondary:hover{border-color:var(--gold-dim);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  #parseError{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+
+  /* ---------- dashboard ---------- */
+  #dashboard{display:none;padding-top:18px;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+  .toggles{display:flex;gap:16px;flex-wrap:wrap;}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-dim);font-family:var(--mono);cursor:pointer;padding:4px 0;}
+  .toggle input{accent-color:var(--gold);width:16px;height:16px;}
+
+  .grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start;}
+  @media (max-width:900px){.grid{grid-template-columns:1fr;} .demo-grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);}
+  .panel-head{
+    padding:11px 14px;border-bottom:1px solid var(--border-soft);
+    font-family:var(--mono);font-size:12px;color:var(--text-faint);
+    display:flex;justify-content:space-between;align-items:center;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  #chartContainer{width:100%;height:480px;}
+
+  .side-stack{display:flex;flex-direction:column;gap:14px;}
+  .setup-card{padding:14px;border-bottom:1px solid var(--border-soft);}
+  .setup-card:last-child{border-bottom:none;}
+  .setup-dir{
+    display:inline-block;font-family:var(--mono);font-size:11.5px;padding:2px 7px;border-radius:2px;
+    margin-bottom:9px;font-weight:600;letter-spacing:.02em;
+  }
+  .setup-dir.bullish{background:var(--green-dim);color:var(--green);}
+  .setup-dir.bearish{background:var(--red-dim);color:var(--red);}
+  .setup-rows{font-family:var(--mono);font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;}
+  .setup-rows .lbl{color:var(--text-faint);}
+  .setup-tags{margin-top:9px;display:flex;gap:5px;flex-wrap:wrap;}
+  .tag{font-size:10.5px;font-family:var(--mono);color:var(--gold);border:1px solid var(--gold-dim);padding:2px 6px;border-radius:2px;}
+  .empty-note{padding:16px 14px;color:var(--text-faint);font-size:13px;}
+
+  .mt5-ticket{margin-top:12px;border:1px solid var(--border-soft);border-radius:2px;background:var(--panel-alt);}
+  .mt5-ticket-head{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);font-size:12px;color:var(--gold);}
+  .copy-btn{font-family:var(--mono);font-size:11px;background:none;border:1px solid var(--gold-dim);color:var(--gold);padding:4px 9px;border-radius:2px;cursor:pointer;}
+  .copy-btn:hover{background:var(--gold-dim);color:#171208;}
+  .mt5-ticket-body{padding:8px 10px;font-family:var(--mono);font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;}
+  .mt5-ticket-body .lbl{color:var(--text-faint);}
+
+  .calc-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);}
+  .field input,.field select{
+    background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
+    font-family:var(--mono);font-size:13px;padding:7px 9px;border-radius:2px;
+  }
+  .calc-result{font-family:var(--mono);font-size:12.5px;background:var(--panel-alt);border:1px solid var(--border-soft);border-radius:2px;padding:10px;display:grid;grid-template-columns:auto 1fr;gap:5px 10px;}
+  .calc-result .lbl{color:var(--text-faint);}
+  .calc-result .val.pos{color:var(--green);}
+  .calc-result .val.neg{color:var(--red);}
+
+  table.zones-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;}
+  table.zones-table th{text-align:left;color:var(--text-faint);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-soft);font-size:11px;text-transform:uppercase;letter-spacing:.03em;}
+  table.zones-table td{padding:7px 10px;border-bottom:1px solid var(--border-soft);color:var(--text-dim);}
+  table.zones-table tr:last-child td{border-bottom:none;}
+  .status-active{color:var(--gold);}
+  .status-done{color:var(--text-faint);text-decoration:line-through;}
+  .zones-scroll{max-height:320px;overflow-y:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+  footer{margin-top:28px;padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .disclaimer{font-size:11.5px;color:var(--text-faint);max-width:760px;line-height:1.6;}
+  .reset-link{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);background:none;border:1px solid var(--border);padding:8px 14px;border-radius:2px;cursor:pointer;}
+  .reset-link:hover{border-color:var(--gold-dim);color:var(--text);}
+
+  /* ---------- phone-sized screens ---------- */
+  @media (max-width:640px){
+    .wrap{padding:0 12px 28px;}
+    header{padding:14px 12px;gap:8px;}
+    .brand h1{font-size:16.5px;}
+    .brand .sub{font-size:10.5px;}
+    .brand .mark{font-size:11px;padding:2px 6px;}
+    .badges{gap:6px;width:100%;}
+    .badge{font-size:11px;padding:5px 8px;flex:1;text-align:center;}
+
+    #inputScreen{padding:28px 12px 12px;}
+    #inputScreen h2{font-size:20px;}
+    #inputScreen p.lead{font-size:13.5px;}
+    .source-tab{font-size:13px;padding:10px 10px;flex:1;text-align:center;}
+
+    .toolbar{position:sticky;top:0;background:var(--bg);z-index:5;padding-top:4px;margin-bottom:10px;}
+    .toggles{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;padding-bottom:6px;}
+    .toggle{flex:0 0 auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:7px 12px;font-size:12px;white-space:nowrap;}
+    .reset-link{width:100%;padding:11px;font-size:13px;}
+
+    #chartContainer{height:320px;}
+    .panel-head{font-size:11.5px;padding:10px 12px;}
+
+    .setup-card{padding:13px 12px;}
+    .setup-dir{font-size:12px;padding:3px 8px;}
+    .setup-rows{font-size:13.5px;}
+    .mt5-ticket-head{font-size:12.5px;}
+    .copy-btn{padding:7px 12px;font-size:12px;min-height:32px;}
+
+    .calc-body{padding:12px;}
+    .field input,.field select{padding:9px 10px;font-size:14px;}
+
+    table.zones-table{font-size:11.5px;min-width:420px;}
+    .zones-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+    footer{padding:14px 12px;flex-direction:column;align-items:stretch;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark">ICT</span>
+    <div>
+      <h1>Bozor Tahlilchisi</h1>
+      <div class="sub" id="instrumentLabel">XAU/USD · tahlil kutilmoqda</div>
+    </div>
+  </div>
+  <div class="badges" id="headerBadges" style="display:none;">
+    <span class="badge" id="priceBadge">—</span>
+    <span class="badge" id="trendBadge">—</span>
+    <span class="badge" id="zoneBadge">—</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ INPUT SCREEN ============ -->
+  <div id="inputScreen">
+    <div class="intro-eyebrow">Boshlash uchun ma'lumot tanlang</div>
+    <h2>ICT metodologiyasi asosida struktura, order block, FVG va liquidity zonalarni aniqlash</h2>
+    <p class="lead">Tizim narx ma'lumotini (OHLC) tahlil qilib, market structure (BOS/CHoCH), order blocklar, fair value gap, liquidity zonalarni topadi va shular asosida Entry / Stop Loss / Take Profit taklif qiladi. Bu — moliyaviy maslahat emas, tahliliy vosita.</p>
+
+    <div class="source-tabs">
+      <button class="source-tab active" data-tab="demo">Demo ma'lumot</button>
+      <button class="source-tab" data-tab="paste">CSV joylashtirish</button>
+      <button class="source-tab" data-tab="file">Fayl yuklash</button>
+    </div>
+
+    <div class="source-pane active" data-pane="demo">
+      <div class="demo-grid">
+        <button class="demo-card" id="demo5m">
+          <span class="tf">XAU/USD · 5m</span>
+          <span class="desc">300 ta 5-daqiqalik candle — tez razgon/scalp uchun</span>
+        </button>
+        <button class="demo-card" id="demo15m">
+          <span class="tf">XAU/USD · 15m</span>
+          <span class="desc">300 ta 15-daqiqalik candle — qisqa muddatli razgon uchun</span>
+        </button>
+        <button class="demo-card" id="demo30m">
+          <span class="tf">XAU/USD · 30m</span>
+          <span class="desc">300 ta 30-daqiqalik candle — intraday razgon uchun</span>
+        </button>
+        <button class="demo-card" id="demo4h">
+          <span class="tf">XAU/USD · 4H</span>
+          <span class="desc">180 ta 4-soatlik candle — swing-trade tahlili uchun</span>
+        </button>
+        <button class="demo-card" id="demo1d">
+          <span class="tf">XAU/USD · 1D</span>
+          <span class="desc">180 ta kunlik candle — kattaroq struktura ko'rinishi uchun</span>
+        </button>
+      </div>
+      <div class="format-hint">Demo ma'lumot sintetik (o'quv/namoyish maqsadida) — real savdo qarori uchun o'z broker platformangizdagi haqiqiy narxlarni "CSV joylashtirish" orqali kiriting. Kichik timeframe (5m/15m/30m) shovqin ko'proq bo'lgani uchun EMA trend filtri va yuqori timeframe struktura bilan tasdiqlab foydalaning.</div>
+    </div>
+
+    <div class="source-pane" data-pane="paste">
+      <textarea id="csvInput" placeholder="time,open,high,low,close&#10;2026-08-01 00:00,4310.2,4318.5,4305.1,4316.0&#10;2026-08-01 04:00,4316.0,4322.7,4312.4,4319.8&#10;...">
+      </textarea>
+      <div class="format-hint">Ustunlar: time/date, open, high, low, close (vergul yoki tab bilan ajratilgan). Sarlavha qatori ixtiyoriy. Kamida 60 ta qator tavsiya etiladi.</div>
+      <button class="btn" id="parsePasteBtn">Tahlil qilish</button>
+      <div id="parseError"></div>
+    </div>
+
+    <div class="source-pane" data-pane="file">
+      <div class="file-row">
+        <input type="file" id="fileInput" accept=".csv,.txt">
+        <button class="btn" id="parseFileBtn">Fayldan tahlil qilish</button>
+      </div>
+      <div class="format-hint">.csv fayl: time,open,high,low,close ustunlari bilan.</div>
+      <div id="parseErrorFile" style="color:var(--red);font-size:13px;"></div>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="dashboard">
+    <div class="toolbar">
+      <div class="toggles">
+        <label class="toggle"><input type="checkbox" id="tgStructure" checked> Struktura (BOS/CHoCH)</label>
+        <label class="toggle"><input type="checkbox" id="tgOB" checked> Order Blocklar</label>
+        <label class="toggle"><input type="checkbox" id="tgFVG" checked> Fair Value Gap</label>
+        <label class="toggle"><input type="checkbox" id="tgLiq" checked> Liquidity</label>
+        <label class="toggle"><input type="checkbox" id="tgOTE" checked> Fibonacci OTE</label>
+        <label class="toggle"><input type="checkbox" id="tgEMA" checked> EMA 20/50</label>
+        <label class="toggle"><input type="checkbox" id="tgSetup" checked> Setup chiziqlari</label>
+      </div>
+      <button class="reset-link" id="resetBtn">↺ Yangi ma'lumot yuklash</button>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="panel-head"><span>Narx grafigi</span><span id="candleCount"></span></div>
+        <div id="chartContainer"></div>
+      </div>
+
+      <div class="side-stack">
+        <div class="panel">
+          <div class="panel-head">Fibonacci OTE &amp; Trend filtri</div>
+          <div class="calc-result" id="fibPanel" style="margin:12px 14px;width:calc(100% - 28px);"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Faol Setuplar</div>
+          <div class="format-hint" style="padding:10px 14px 0;">MT5: <b>F9</b> → Type: <i>Pending Order</i> → tegishli order turini tanlab, pastdagi qiymatlarni kiriting (yoki "Nusxalash" bosib to'liq matnni joylashtiring).</div>
+          <div id="setupsList"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Risk sozlamalari <span style="font-weight:400;text-transform:none;">(har bir setup uchun avtomatik qo'llanadi)</span></div>
+          <div class="calc-body">
+            <div class="field">
+              <label>Depozit ($)</label>
+              <input type="number" id="calcDeposit" value="1000" min="10">
+            </div>
+            <div class="field">
+              <label>Risk (%)</label>
+              <input type="number" id="calcRisk" value="1" min="0.1" step="0.1">
+            </div>
+            <div class="field">
+              <label>Kontrakt hajmi (1 lot = ? oz, XAU standarti 100)</label>
+              <input type="number" id="calcContract" value="100" min="1">
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Barcha zonalar</div>
+          <div class="zones-scroll">
+            <table class="zones-table" id="zonesTable">
+              <thead><tr><th>Turi</th><th>Narx oralig'i</th><th>Holat</th></tr></thead>
+              <tbody id="zonesBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="disclaimer">
+    Bu vosita ta'lim va tahliliy maqsadlarda ishlaydi, moliyaviy maslahat hisoblanmaydi. Signal va zonalar tarixiy narx harakati asosida algoritmik hisoblanadi, kelajakdagi natijani kafolatlamaydi. Har qanday savdo qarori faqat o'zingizning tavakkalchilik boshqaruvingiz asosida qabul qilinishi kerak.
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// ICT ANALYSIS ENGINE
+// ============================================================
+function findSwings(data, left, right) {
+  left = left || 2; right = right || 2;
+  const swings = [];
+  for (let i = left; i < data.length - right; i++) {
+    let isHigh = true, isLow = true;
+    for (let k = i - left; k <= i + right; k++) {
+      if (k === i) continue;
+      if (data[k].high >= data[i].high) isHigh = false;
+      if (data[k].low <= data[i].low) isLow = false;
+    }
+    if (isHigh) swings.push({ index: i, type: 'high', price: data[i].high });
+    if (isLow) swings.push({ index: i, type: 'low', price: data[i].low });
+  }
+  return swings.sort((a, b) => a.index - b.index);
+}
+
+function buildStructure(data, swings) {
+  const highs = swings.filter(s => s.type === 'high').map(s => Object.assign({}, s, { broken: false }));
+  const lows = swings.filter(s => s.type === 'low').map(s => Object.assign({}, s, { broken: false }));
+  const events = [];
+  let trend = null;
+  let hIdx = 0, lIdx = 0;
+  let activeHigh = null, activeLow = null;
+
+  for (let i = 0; i < data.length; i++) {
+    while (hIdx < highs.length && highs[hIdx].index < i) { activeHigh = highs[hIdx]; hIdx++; }
+    while (lIdx < lows.length && lows[lIdx].index < i) { activeLow = lows[lIdx]; lIdx++; }
+    const close = data[i].close;
+
+    if (activeHigh && !activeHigh.broken && close > activeHigh.price) {
+      const type = (trend === 'bearish' || trend === null) ? 'CHoCH' : 'BOS';
+      events.push({ index: i, direction: 'bullish', type, level: activeHigh.price, fromIndex: activeHigh.index });
+      activeHigh.broken = true; trend = 'bullish';
+    }
+    if (activeLow && !activeLow.broken && close < activeLow.price) {
+      const type = (trend === 'bullish' || trend === null) ? 'CHoCH' : 'BOS';
+      events.push({ index: i, direction: 'bearish', type, level: activeLow.price, fromIndex: activeLow.index });
+      activeLow.broken = true; trend = 'bearish';
+    }
+  }
+  return { events, trend, highs, lows };
+}
+
+function findOrderBlocks(data, events) {
+  const obs = [];
+  for (const ev of events) {
+    const searchStart = ev.fromIndex, searchEnd = ev.index - 1;
+    let obCandleIdx = -1;
+    if (ev.direction === 'bullish') {
+      for (let k = searchEnd; k >= searchStart; k--) { if (data[k].close < data[k].open) { obCandleIdx = k; break; } }
+    } else {
+      for (let k = searchEnd; k >= searchStart; k--) { if (data[k].close > data[k].open) { obCandleIdx = k; break; } }
+    }
+    if (obCandleIdx === -1) continue;
+    const c = data[obCandleIdx];
+    const zoneTop = c.high, zoneBottom = c.low;
+    let mitigated = false, mitigatedAt = null;
+    for (let k = ev.index + 1; k < data.length; k++) {
+      if (data[k].low <= zoneTop && data[k].high >= zoneBottom) { mitigated = true; mitigatedAt = k; break; }
+    }
+    obs.push({ type: ev.direction === 'bullish' ? 'bullish_ob' : 'bearish_ob', candleIndex: obCandleIdx, formedAtEvent: ev.index, eventType: ev.type, top: zoneTop, bottom: zoneBottom, mitigated, mitigatedAt });
+  }
+  return obs;
+}
+
+function findFVGs(data) {
+  const fvgs = [];
+  for (let i = 1; i < data.length - 1; i++) {
+    const prev = data[i - 1], next = data[i + 1];
+    if (prev.high < next.low) fvgs.push({ type: 'bullish_fvg', formedAt: i + 1, top: next.low, bottom: prev.high });
+    else if (prev.low > next.high) fvgs.push({ type: 'bearish_fvg', formedAt: i + 1, top: prev.low, bottom: next.high });
+  }
+  for (const g of fvgs) {
+    let mitigated = false, mitigatedAt = null;
+    for (let k = g.formedAt + 1; k < data.length; k++) {
+      if (data[k].low <= g.top && data[k].high >= g.bottom) { mitigated = true; mitigatedAt = k; break; }
+    }
+    g.mitigated = mitigated; g.mitigatedAt = mitigatedAt;
+  }
+  return fvgs;
+}
+
+function findLiquidityZones(data, highs, lows, tolerancePct) {
+  tolerancePct = tolerancePct || 0.0012;
+  const zones = [];
+  function cluster(points, kind) {
+    const sorted = points.slice().sort((a, b) => a.price - b.price);
+    const used = new Array(sorted.length).fill(false);
+    for (let i = 0; i < sorted.length; i++) {
+      if (used[i]) continue;
+      const group = [sorted[i]]; used[i] = true;
+      for (let j = i + 1; j < sorted.length; j++) {
+        if (used[j]) continue;
+        const ref = group[0].price;
+        if (Math.abs(sorted[j].price - ref) / ref <= tolerancePct) { group.push(sorted[j]); used[j] = true; }
+      }
+      if (group.length >= 2) {
+        const avg = group.reduce((s, p) => s + p.price, 0) / group.length;
+        zones.push({ type: kind, price: avg, count: group.length, indices: group.map(g => g.index), lastIndex: Math.max.apply(null, group.map(g => g.index)) });
+      }
+    }
+  }
+  cluster(highs, 'sellside_target_equal_highs');
+  cluster(lows, 'buyside_target_equal_lows');
+  for (const z of zones) {
+    let swept = false, sweptAt = null;
+    for (let k = z.lastIndex + 1; k < data.length; k++) {
+      if (z.type === 'sellside_target_equal_highs' && data[k].high > z.price) { swept = true; sweptAt = k; break; }
+      if (z.type === 'buyside_target_equal_lows' && data[k].low < z.price) { swept = true; sweptAt = k; break; }
+    }
+    z.swept = swept; z.sweptAt = sweptAt;
+  }
+  return zones;
+}
+
+function premiumDiscount(data, highs, lows, currentIndex) {
+  const recentHigh = highs.slice().reverse().find(h => h.index <= currentIndex);
+  const recentLow = lows.slice().reverse().find(l => l.index <= currentIndex);
+  if (!recentHigh || !recentLow) return null;
+  const top = recentHigh.price, bottom = recentLow.price;
+  const eq = (top + bottom) / 2;
+  const price = data[currentIndex].close;
+  const pct = (price - bottom) / (top - bottom);
+  let zone = 'equilibrium';
+  if (pct < 0.45) zone = 'discount'; else if (pct > 0.55) zone = 'premium';
+  return { top, bottom, eq, pct, zone };
+}
+
+function computeATR(data, period) {
+  period = period || 14;
+  const trs = [];
+  for (let i = 1; i < data.length; i++) {
+    const h = data[i].high, l = data[i].low, pc = data[i - 1].close;
+    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+  }
+  const last = trs.slice(-period);
+  return last.reduce((a, b) => a + b, 0) / last.length;
+}
+
+function computeEMA(data, period) {
+  const k = 2 / (period + 1);
+  const emas = new Array(data.length).fill(null);
+  if (data.length < period) return emas;
+  let sum = 0;
+  for (let i = 0; i < period; i++) sum += data[i].close;
+  emas[period - 1] = sum / period;
+  for (let i = period; i < data.length; i++) emas[i] = data[i].close * k + emas[i - 1] * (1 - k);
+  return emas;
+}
+
+// The "current impulse leg" = most recent confirmed swing point + the nearest
+// opposite-type swing before it. This is the leg ICT traders draw Fibonacci on
+// to find the OTE (Optimal Trade Entry, 61.8%-79% retracement) zone — the most
+// commonly used reference-point method for entries after a "razgon" (impulse) move.
+function findCurrentImpulseLeg(highs, lows, currentIndex) {
+  const all = highs.map(h => Object.assign({}, h, { type: 'high' }))
+    .concat(lows.map(l => Object.assign({}, l, { type: 'low' })))
+    .filter(s => s.index <= currentIndex)
+    .sort((a, b) => a.index - b.index);
+  if (all.length < 2) return null;
+  const last = all[all.length - 1];
+  for (let i = all.length - 2; i >= 0; i--) {
+    if (all[i].type !== last.type) {
+      const origin = all[i], end = last;
+      const direction = end.type === 'high' ? 'up' : 'down';
+      const top = direction === 'up' ? end.price : origin.price;
+      const bottom = direction === 'up' ? origin.price : end.price;
+      return { direction, top, bottom, originIndex: origin.index, endIndex: end.index };
+    }
+  }
+  return null;
+}
+function fibLevel(leg, ratio) {
+  return leg.direction === 'up' ? leg.top - (leg.top - leg.bottom) * ratio : leg.bottom + (leg.top - leg.bottom) * ratio;
+}
+function fibExtension(leg, ratio) {
+  return leg.direction === 'up' ? leg.top + (leg.top - leg.bottom) * ratio : leg.bottom - (leg.top - leg.bottom) * ratio;
+}
+function computeOTE(leg) {
+  if (!leg) return null;
+  const a = fibLevel(leg, 0.618), b = fibLevel(leg, 0.79);
+  return { top: Math.max(a, b), bottom: Math.min(a, b), direction: leg.direction };
+}
+
+function generateSetups(data, structure, obs, fvgs, liquidity, atr, ote, ema20, ema50) {
+  const lastIndex = data.length - 1;
+  const currentPrice = data[lastIndex].close;
+  const pd = premiumDiscount(data, structure.highs, structure.lows, lastIndex);
+  const buffer = atr * 0.25;
+  const setups = [];
+  const lastEma20 = ema20[lastIndex], lastEma50 = ema50[lastIndex];
+  const emaBullish = lastEma20 !== null && lastEma50 !== null && lastEma20 > lastEma50;
+  const emaBearish = lastEma20 !== null && lastEma50 !== null && lastEma20 < lastEma50;
+
+  function nearestLiquidityTarget(direction) {
+    if (direction === 'bullish') {
+      const cand = liquidity.filter(z => z.type === 'sellside_target_equal_highs' && !z.swept && z.price > currentPrice);
+      if (!cand.length) {
+        const sh = structure.highs.filter(h => !h.broken && h.price > currentPrice);
+        if (!sh.length) return null;
+        return sh.sort((a, b) => a.price - b.price)[0].price;
+      }
+      return cand.sort((a, b) => a.price - b.price)[0].price;
+    } else {
+      const cand = liquidity.filter(z => z.type === 'buyside_target_equal_lows' && !z.swept && z.price < currentPrice);
+      if (!cand.length) {
+        const sl = structure.lows.filter(l => !l.broken && l.price < currentPrice);
+        if (!sl.length) return null;
+        return sl.sort((a, b) => b.price - a.price)[0].price;
+      }
+      return cand.sort((a, b) => b.price - a.price)[0].price;
+    }
+  }
+  function overlapsAnyFVG(top, bottom, kind) {
+    return fvgs.some(f => f.type === kind && !f.mitigated && f.bottom <= top && f.top >= bottom);
+  }
+  function overlapsOTE(top, bottom, direction) {
+    if (!ote) return false;
+    const wantDir = direction === 'bullish' ? 'up' : 'down';
+    if (ote.direction !== wantDir) return false;
+    return bottom <= ote.top && top >= ote.bottom;
+  }
+
+  const bullishOBs = obs.filter(o => o.type === 'bullish_ob' && !o.mitigated).sort((a, b) => b.formedAtEvent - a.formedAtEvent);
+  const bearishOBs = obs.filter(o => o.type === 'bearish_ob' && !o.mitigated).sort((a, b) => b.formedAtEvent - a.formedAtEvent);
+
+  for (const ob of bullishOBs.slice(0, 6)) {
+    if (currentPrice < ob.bottom) continue;
+    const entry = ob.top, stop = ob.bottom - buffer;
+    const target = nearestLiquidityTarget('bullish');
+    if (!target || target <= entry) continue;
+    const rr = (target - entry) / (entry - stop);
+    const tags = ['Order Block'];
+    if (pd && pd.zone === 'discount') tags.push('Discount');
+    if (overlapsAnyFVG(ob.top, ob.bottom, 'bullish_fvg')) tags.push('FVG Confluence');
+    if (ob.eventType === 'CHoCH') tags.push('CHoCH');
+    if (overlapsOTE(ob.top, ob.bottom, 'bullish')) tags.push('OTE Zone');
+    if (emaBullish) tags.push('EMA Trend');
+    setups.push({ direction: 'bullish', entry, stop, target, rr, tags, sourceIndex: ob.candleIndex });
+  }
+  for (const ob of bearishOBs.slice(0, 6)) {
+    if (currentPrice > ob.top) continue;
+    const entry = ob.bottom, stop = ob.top + buffer;
+    const target = nearestLiquidityTarget('bearish');
+    if (!target || target >= entry) continue;
+    const rr = (entry - target) / (stop - entry);
+    const tags = ['Order Block'];
+    if (pd && pd.zone === 'premium') tags.push('Premium');
+    if (overlapsAnyFVG(ob.top, ob.bottom, 'bearish_fvg')) tags.push('FVG Confluence');
+    if (ob.eventType === 'CHoCH') tags.push('CHoCH');
+    if (overlapsOTE(ob.top, ob.bottom, 'bearish')) tags.push('OTE Zone');
+    if (emaBearish) tags.push('EMA Trend');
+    setups.push({ direction: 'bearish', entry, stop, target, rr, tags, sourceIndex: ob.candleIndex });
+  }
+  setups.sort((a, b) => (b.tags.length - a.tags.length) || (b.rr - a.rr));
+  return { setups, pd, trend: structure.trend, currentPrice, emaBullish, emaBearish };
+}
+
+function runFullAnalysis(data) {
+  const swings = findSwings(data, 2, 2);
+  const structure = buildStructure(data, swings);
+  const obs = findOrderBlocks(data, structure.events);
+  const fvgs = findFVGs(data);
+  const liquidity = findLiquidityZones(data, structure.highs, structure.lows);
+  const atr = computeATR(data);
+  const ema20 = computeEMA(data, 20);
+  const ema50 = computeEMA(data, 50);
+  const impulseLeg = findCurrentImpulseLeg(structure.highs, structure.lows, data.length - 1);
+  const ote = computeOTE(impulseLeg);
+  const fibExtTargets = impulseLeg ? { ext127: fibExtension(impulseLeg, 0.272), ext161: fibExtension(impulseLeg, 0.618) } : null;
+  const result = generateSetups(data, structure, obs, fvgs, liquidity, atr, ote, ema20, ema50);
+  return Object.assign({ swings, structure, obs, fvgs, liquidity, atr, ema20, ema50, impulseLeg, ote, fibExtTargets }, result);
+}
+
+// ---------------- demo data ----------------
+function generateDemoData(n, startPrice, seed, stepSeconds) {
+  n = n || 180; startPrice = startPrice || 4300; seed = seed || 42; stepSeconds = stepSeconds || 4 * 3600;
+  let s = seed;
+  function rand() { s = (s * 16807) % 2147483647; return (s / 2147483647); }
+  const data = [];
+  let price = startPrice, regime = 1, regimeLen = 0;
+  const recentExtremes = [];
+  const t0 = Math.floor(Date.now() / 1000) - n * stepSeconds;
+  for (let i = 0; i < n; i++) {
+    if (regimeLen <= 0) { regime = rand() > 0.45 ? 1 : -1; regimeLen = 6 + Math.floor(rand() * 8); }
+    regimeLen--;
+    const bias = regime * (2.5 + rand() * 5);
+    const noise = (rand() - 0.5) * 14;
+    let open = price, close = open + bias + noise;
+    if (recentExtremes.length > 3 && rand() > 0.85) {
+      const ref = recentExtremes[Math.floor(rand() * recentExtremes.length)];
+      close = ref + (rand() - 0.5) * 2;
+    }
+    const wickUp = rand() * 7, wickDown = rand() * 7;
+    const high = Math.max(open, close) + wickUp, low = Math.min(open, close) - wickDown;
+    data.push({ time: t0 + i * stepSeconds, open, high, low, close });
+    recentExtremes.push(high, low);
+    if (recentExtremes.length > 20) recentExtremes.splice(0, recentExtremes.length - 20);
+    price = close;
+  }
+  return data;
+}
+
+// ============================================================
+// CSV PARSING
+// ============================================================
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length);
+  if (!lines.length) throw new Error('Ma\'lumot topilmadi.');
+  const splitLine = l => l.split(/,|\t/).map(x => x.trim());
+  let rows = lines.map(splitLine);
+  let headerMap = null;
+  const firstRow = rows[0].map(x => x.toLowerCase());
+  const isHeader = firstRow.some(x => ['open','high','low','close','time','date'].includes(x));
+  if (isHeader) {
+    headerMap = {};
+    firstRow.forEach((h, idx) => { headerMap[h] = idx; });
+    rows = rows.slice(1);
+  }
+  const idxOf = (names, fallback) => {
+    if (!headerMap) return fallback;
+    for (const n of names) if (headerMap[n] !== undefined) return headerMap[n];
+    return fallback;
+  };
+  const tIdx = idxOf(['time','date','datetime'], 0);
+  const oIdx = idxOf(['open'], 1);
+  const hIdx = idxOf(['high'], 2);
+  const lIdx = idxOf(['low'], 3);
+  const cIdx = idxOf(['close'], 4);
+
+  const out = [];
+  for (const r of rows) {
+    if (r.length < 5) continue;
+    let tRaw = r[tIdx];
+    let time;
+    if (/^\d+$/.test(tRaw)) {
+      time = parseInt(tRaw, 10);
+      if (time > 1e12) time = Math.floor(time / 1000);
+    } else {
+      const parsed = Date.parse(tRaw.replace(' ', 'T'));
+      if (isNaN(parsed)) continue;
+      time = Math.floor(parsed / 1000);
+    }
+    const open = parseFloat(r[oIdx]), high = parseFloat(r[hIdx]), low = parseFloat(r[lIdx]), close = parseFloat(r[cIdx]);
+    if ([open, high, low, close].some(isNaN)) continue;
+    out.push({ time, open, high, low, close });
+  }
+  out.sort((a, b) => a.time - b.time);
+  const dedup = [];
+  for (const c of out) { if (!dedup.length || dedup[dedup.length - 1].time !== c.time) dedup.push(c); }
+  if (dedup.length < 20) throw new Error('Yetarli qator topilmadi (kamida 20 ta candle kerak). Topildi: ' + dedup.length);
+  return dedup;
+}
+
+// ============================================================
+// UI WIRING
+// ============================================================
+let state = { data: null, analysis: null, chart: null, series: null, timeframeLabel: '' };
+
+document.querySelectorAll('.source-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.source-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelector('.source-pane[data-pane="' + tab.dataset.tab + '"]').classList.add('active');
+  });
+});
+
+document.getElementById('demo5m').addEventListener('click', () => {
+  loadData(generateDemoData(300, 4340, 5, 5 * 60), 'XAU/USD · 5m (demo)');
+});
+document.getElementById('demo15m').addEventListener('click', () => {
+  loadData(generateDemoData(300, 4340, 15, 15 * 60), 'XAU/USD · 15m (demo)');
+});
+document.getElementById('demo30m').addEventListener('click', () => {
+  loadData(generateDemoData(300, 4340, 30, 30 * 60), 'XAU/USD · 30m (demo)');
+});
+document.getElementById('demo4h').addEventListener('click', () => {
+  loadData(generateDemoData(180, 4340, 42, 4 * 3600), 'XAU/USD · 4H (demo)');
+});
+document.getElementById('demo1d').addEventListener('click', () => {
+  loadData(generateDemoData(180, 4340, 91, 24 * 3600), 'XAU/USD · 1D (demo)');
+});
+document.getElementById('parsePasteBtn').addEventListener('click', () => {
+  const errBox = document.getElementById('parseError');
+  errBox.style.display = 'none';
+  try {
+    const data = parseCSV(document.getElementById('csvInput').value);
+    loadData(data, 'XAU/USD · yuklangan ma\'lumot');
+    try { localStorage.setItem('ict_last_csv', document.getElementById('csvInput').value); } catch (e) {}
+  } catch (e) {
+    errBox.textContent = 'Xatolik: ' + e.message;
+    errBox.style.display = 'block';
+  }
+});
+document.getElementById('parseFileBtn').addEventListener('click', () => {
+  const f = document.getElementById('fileInput').files[0];
+  const errBox = document.getElementById('parseErrorFile');
+  errBox.textContent = '';
+  if (!f) { errBox.textContent = 'Fayl tanlanmagan.'; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = parseCSV(reader.result);
+      loadData(data, 'XAU/USD · ' + f.name);
+    } catch (e) { errBox.textContent = 'Xatolik: ' + e.message; }
+  };
+  reader.onerror = () => { errBox.textContent = 'Faylni o\'qib bo\'lmadi.'; };
+  reader.readAsText(f);
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('headerBadges').style.display = 'none';
+  document.getElementById('inputScreen').style.display = 'block';
+  document.getElementById('instrumentLabel').textContent = 'XAU/USD · tahlil kutilmoqda';
+  if (state.chart) { state.chart.remove(); state.chart = null; }
+});
+
+['tgStructure','tgOB','tgFVG','tgLiq','tgOTE','tgEMA','tgSetup'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => renderOverlays());
+});
+
+function loadData(data, label) {
+  state.data = data;
+  state.timeframeLabel = label;
+  state.analysis = runFullAnalysis(data);
+  document.getElementById('inputScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('headerBadges').style.display = 'flex';
+  document.getElementById('instrumentLabel').textContent = label + ' · ' + data.length + ' candle';
+  document.getElementById('candleCount').textContent = data.length + ' candle';
+  renderHeaderBadges();
+  buildChart();
+  renderOverlays();
+  renderSetups();
+  renderZonesTable();
+  renderFibPanel();
+}
+
+function fmt(n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function renderHeaderBadges() {
+  const a = state.analysis;
+  document.getElementById('priceBadge').textContent = fmt(a.currentPrice);
+  const trendEl = document.getElementById('trendBadge');
+  trendEl.textContent = a.trend === 'bullish' ? '▲ Bullish struktura' : a.trend === 'bearish' ? '▼ Bearish struktura' : '— Aniqlanmagan';
+  trendEl.className = 'badge ' + (a.trend === 'bullish' ? 'trend-bullish' : a.trend === 'bearish' ? 'trend-bearish' : '');
+  const zoneEl = document.getElementById('zoneBadge');
+  if (a.pd) {
+    const label = a.pd.zone === 'premium' ? 'Premium zona' : a.pd.zone === 'discount' ? 'Discount zona' : 'Equilibrium';
+    zoneEl.textContent = label;
+    zoneEl.className = 'badge zone-' + a.pd.zone;
+  } else { zoneEl.textContent = '—'; zoneEl.className = 'badge'; }
+}
+
+function chartHeight() { return window.innerWidth < 640 ? 320 : 480; }
+
+function buildChart() {
+  if (state.chart) { state.chart.remove(); }
+  const container = document.getElementById('chartContainer');
+  container.innerHTML = '';
+  const styles = getComputedStyle(document.documentElement);
+  const chart = LightweightCharts.createChart(container, {
+    width: container.clientWidth,
+    height: chartHeight(),
+    layout: { background: { color: 'transparent' }, textColor: styles.getPropertyValue('--text-dim').trim() || '#9c9184', fontFamily: 'JetBrains Mono, monospace', fontSize: 11 },
+    grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
+    rightPriceScale: { borderColor: styles.getPropertyValue('--border').trim() || '#2c281f' },
+    timeScale: { borderColor: styles.getPropertyValue('--border').trim() || '#2c281f', timeVisible: true, secondsVisible: false },
+    crosshair: { mode: 0 },
+    handleScroll: { vertTouchDrag: false },
+  });
+  const series = chart.addCandlestickSeries({
+    upColor: '#5aa579', downColor: '#c66a5b', borderVisible: false,
+    wickUpColor: '#5aa579', wickDownColor: '#c66a5b',
+  });
+  series.setData(state.data.map(d => ({ time: d.time, open: d.open, high: d.high, low: d.low, close: d.close })));
+
+  const emaSeries20 = chart.addLineSeries({ color: '#7fa3c4', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
+  const emaSeries50 = chart.addLineSeries({ color: '#c9a15a', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
+  const a0 = state.analysis;
+  if (a0) {
+    emaSeries20.setData(state.data.map((d, i) => ({ time: d.time, value: a0.ema20[i] })).filter(p => p.value !== null));
+    emaSeries50.setData(state.data.map((d, i) => ({ time: d.time, value: a0.ema50[i] })).filter(p => p.value !== null));
+  }
+
+  chart.timeScale().fitContent();
+  state.chart = chart; state.series = series; state.emaSeries20 = emaSeries20; state.emaSeries50 = emaSeries50;
+  window.addEventListener('resize', () => { chart.applyOptions({ width: container.clientWidth, height: chartHeight() }); });
+}
+
+function renderOverlays() {
+  if (!state.series) return;
+  const a = state.analysis;
+  state.series.setMarkers([]);
+  // clear old price lines by rebuilding series data reference (lightweight-charts has no bulk clear, so track manually)
+  if (state.priceLines) { state.priceLines.forEach(pl => { try { state.series.removePriceLine(pl); } catch (e) {} }); }
+  state.priceLines = [];
+
+  const showStructure = document.getElementById('tgStructure').checked;
+  const showOB = document.getElementById('tgOB').checked;
+  const showFVG = document.getElementById('tgFVG').checked;
+  const showLiq = document.getElementById('tgLiq').checked;
+  const showOTE = document.getElementById('tgOTE').checked;
+  const showEMA = document.getElementById('tgEMA').checked;
+  const showSetup = document.getElementById('tgSetup').checked;
+
+  if (state.emaSeries20) state.emaSeries20.applyOptions({ visible: showEMA });
+  if (state.emaSeries50) state.emaSeries50.applyOptions({ visible: showEMA });
+
+  if (showStructure) {
+    const markers = a.structure.events.map(ev => ({
+      time: state.data[ev.index].time,
+      position: ev.direction === 'bullish' ? 'belowBar' : 'aboveBar',
+      color: ev.direction === 'bullish' ? '#5aa579' : '#c66a5b',
+      shape: ev.direction === 'bullish' ? 'arrowUp' : 'arrowDown',
+      text: ev.type,
+    }));
+    state.series.setMarkers(markers);
+  }
+
+  function addZoneLines(top, bottom, color, title) {
+    state.priceLines.push(state.series.createPriceLine({ price: top, color, lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: title + ' top' }));
+    state.priceLines.push(state.series.createPriceLine({ price: bottom, color, lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: title + ' bot' }));
+  }
+
+  if (showOB) {
+    a.obs.filter(o => !o.mitigated).slice(-8).forEach(o => {
+      addZoneLines(o.top, o.bottom, o.type === 'bullish_ob' ? '#5aa579' : '#c66a5b', o.type === 'bullish_ob' ? 'Bull OB' : 'Bear OB');
+    });
+  }
+  if (showFVG) {
+    a.fvgs.filter(f => !f.mitigated).slice(-8).forEach(f => {
+      addZoneLines(f.top, f.bottom, f.type === 'bullish_fvg' ? '#7fa3c4' : '#c9a15a', f.type === 'bullish_fvg' ? 'Bull FVG' : 'Bear FVG');
+    });
+  }
+  if (showLiq) {
+    a.liquidity.filter(z => !z.swept).forEach(z => {
+      state.priceLines.push(state.series.createPriceLine({
+        price: z.price, color: '#c9a15a', lineWidth: 1, lineStyle: 3, axisLabelVisible: true,
+        title: (z.type === 'sellside_target_equal_highs' ? 'Liq↑' : 'Liq↓') + ' x' + z.count,
+      }));
+    });
+  }
+  if (showOTE && a.ote) {
+    addZoneLines(a.ote.top, a.ote.bottom, '#b18ad1', 'OTE');
+  }
+  if (showSetup) {
+    a.setups.slice(0, 3).forEach((s, i) => {
+      const opacity = i === 0 ? 1 : 0.55;
+      state.priceLines.push(state.series.createPriceLine({ price: s.entry, color: '#c9a15a', lineWidth: 2, lineStyle: 0, axisLabelVisible: true, title: 'Entry' }));
+      state.priceLines.push(state.series.createPriceLine({ price: s.stop, color: '#c66a5b', lineWidth: 2, lineStyle: 0, axisLabelVisible: true, title: 'SL' }));
+      state.priceLines.push(state.series.createPriceLine({ price: s.target, color: '#5aa579', lineWidth: 2, lineStyle: 0, axisLabelVisible: true, title: 'TP' }));
+    });
+  }
+}
+
+function getRiskSettings() {
+  return {
+    deposit: parseFloat(document.getElementById('calcDeposit').value) || 0,
+    riskPct: parseFloat(document.getElementById('calcRisk').value) || 0,
+    contract: parseFloat(document.getElementById('calcContract').value) || 100,
+  };
+}
+
+function buildMT5Ticket(s, symbol) {
+  symbol = symbol || 'XAUUSD';
+  const { deposit, riskPct, contract } = getRiskSettings();
+  const riskAmount = deposit * (riskPct / 100);
+  const stopDistance = Math.abs(s.entry - s.stop);
+  const lots = stopDistance > 0 ? riskAmount / (stopDistance * contract) : 0;
+  const lotsRounded = Math.max(0.01, Math.round(lots * 100) / 100);
+  const potentialProfit = riskAmount * s.rr;
+  const currentPrice = state.analysis.currentPrice;
+
+  let orderType;
+  if (s.direction === 'bullish') orderType = s.entry <= currentPrice ? 'BUY LIMIT' : 'BUY STOP';
+  else orderType = s.entry >= currentPrice ? 'SELL LIMIT' : 'SELL STOP';
+
+  const ticketText =
+    symbol + '  |  ' + orderType + '\n' +
+    'Entry:  ' + fmt(s.entry) + '\n' +
+    'S/L:    ' + fmt(s.stop) + '\n' +
+    'T/P:    ' + fmt(s.target) + '\n' +
+    'Volume: ' + lotsRounded.toFixed(2) + ' lot';
+
+  return { orderType, lots: lotsRounded, riskAmount, potentialProfit, stopDistance, ticketText };
+}
+
+function copyTicket(btnEl, text) {
+  const done = () => {
+    const original = btnEl.textContent;
+    btnEl.textContent = 'Nusxalandi ✓';
+    setTimeout(() => { btnEl.textContent = original; }, 1600);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, cb) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    cb();
+  } catch (e) {}
+}
+
+function renderSetups() {
+  const list = document.getElementById('setupsList');
+  const a = state.analysis;
+  if (!a.setups.length) {
+    list.innerHTML = '<div class="empty-note">Hozircha aniq confluence bilan tasdiqlangan setup topilmadi. Struktura shakllanishini kuting yoki boshqa timeframe bilan sinab ko\'ring.</div>';
+    return;
+  }
+  state.tickets = a.setups.slice(0, 5).map(s => buildMT5Ticket(s));
+  list.innerHTML = a.setups.slice(0, 5).map((s, i) => {
+    const t = state.tickets[i];
+    return (
+    '<div class="setup-card">' +
+      '<span class="setup-dir ' + s.direction + '">' + (s.direction === 'bullish' ? 'LONG · BUY' : 'SHORT · SELL') + '</span>' +
+      '<div class="setup-rows">' +
+        '<span class="lbl">Entry</span><span>' + fmt(s.entry) + '</span>' +
+        '<span class="lbl">Stop Loss</span><span>' + fmt(s.stop) + '</span>' +
+        '<span class="lbl">Take Profit</span><span>' + fmt(s.target) + '</span>' +
+        '<span class="lbl">R:R</span><span>1 : ' + s.rr.toFixed(2) + '</span>' +
+      '</div>' +
+      '<div class="setup-tags">' + s.tags.map(tag => '<span class="tag">' + tag + '</span>').join('') + '</div>' +
+      '<div class="mt5-ticket">' +
+        '<div class="mt5-ticket-head"><span>' + t.orderType + ' · ' + t.lots.toFixed(2) + ' lot</span><button class="copy-btn" data-idx="' + i + '">Nusxalash</button></div>' +
+        '<div class="mt5-ticket-body">' +
+          '<span class="lbl">Tavakkal</span><span class="val neg">$' + t.riskAmount.toFixed(2) + '</span>' +
+          '<span class="lbl">Potensial foyda</span><span class="val pos">$' + t.potentialProfit.toFixed(2) + '</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+    );
+  }).join('');
+  list.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => copyTicket(btn, state.tickets[parseInt(btn.dataset.idx, 10)].ticketText));
+  });
+}
+
+function renderFibPanel() {
+  const box = document.getElementById('fibPanel');
+  const a = state.analysis;
+  const rows = [];
+  if (a.impulseLeg) {
+    rows.push(['Joriy impuls (razgon)', (a.impulseLeg.direction === 'up' ? 'Yuqoriga ↑' : 'Pastga ↓') + '  (' + fmt(a.impulseLeg.bottom) + ' – ' + fmt(a.impulseLeg.top) + ')']);
+    rows.push(['OTE zona (61.8–79%)', fmt(a.ote.bottom) + ' – ' + fmt(a.ote.top)]);
+    rows.push(['Fib kengaytma 127%', fmt(a.fibExtTargets.ext127)]);
+    rows.push(['Fib kengaytma 161%', fmt(a.fibExtTargets.ext161)]);
+  } else {
+    rows.push(['Joriy impuls', 'Aniqlanmadi (ma\'lumot kam)']);
+  }
+  const emaStatus = a.emaBullish ? 'Bullish (EMA20 > EMA50)' : a.emaBearish ? 'Bearish (EMA20 < EMA50)' : 'Aniqlanmagan';
+  rows.push(['EMA trend filtri', emaStatus]);
+  box.innerHTML = rows.map(r => '<span class="lbl">' + r[0] + '</span><span>' + r[1] + '</span>').join('');
+}
+
+function renderZonesTable() {
+  const body = document.getElementById('zonesBody');
+  const a = state.analysis;
+  const rows = [];
+  a.obs.forEach(o => rows.push({ type: o.type === 'bullish_ob' ? 'Bullish OB' : 'Bearish OB', range: fmt(o.bottom) + ' – ' + fmt(o.top), active: !o.mitigated, idx: o.formedAtEvent }));
+  a.fvgs.forEach(f => rows.push({ type: f.type === 'bullish_fvg' ? 'Bullish FVG' : 'Bearish FVG', range: fmt(f.bottom) + ' – ' + fmt(f.top), active: !f.mitigated, idx: f.formedAt }));
+  a.liquidity.forEach(z => rows.push({ type: z.type === 'sellside_target_equal_highs' ? 'Liquidity (yuqori)' : 'Liquidity (past)', range: fmt(z.price) + ' (x' + z.count + ')', active: !z.swept, idx: z.lastIndex }));
+  rows.sort((x, y) => y.idx - x.idx);
+  body.innerHTML = rows.slice(0, 60).map(r => (
+    '<tr><td>' + r.type + '</td><td>' + r.range + '</td><td class="' + (r.active ? 'status-active' : 'status-done') + '">' + (r.active ? 'Faol' : 'Ishlatilgan') + '</td></tr>'
+  )).join('');
+}
+
+['calcDeposit','calcRisk','calcContract'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { if (state.analysis) renderSetups(); });
+  document.getElementById(id).addEventListener('change', () => { if (state.analysis) renderSetups(); });
+});
+</script>
+</body>
+</html>
