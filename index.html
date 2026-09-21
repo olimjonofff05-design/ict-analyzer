@@ -99,7 +99,7 @@
   .source-pane{display:none;}
   .source-pane.active{display:block;}
 
-  .demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+  .demo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px;}
   .demo-card{
     background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
     padding:16px;cursor:pointer;text-align:left;color:var(--text);font-family:var(--sans);
@@ -132,8 +132,8 @@
   #dashboard{display:none;padding-top:18px;}
   .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
   .toggles{display:flex;gap:16px;flex-wrap:wrap;}
-  .toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-dim);font-family:var(--mono);cursor:pointer;}
-  .toggle input{accent-color:var(--gold);}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-dim);font-family:var(--mono);cursor:pointer;padding:4px 0;}
+  .toggle input{accent-color:var(--gold);width:16px;height:16px;}
 
   .grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start;}
   @media (max-width:900px){.grid{grid-template-columns:1fr;} .demo-grid{grid-template-columns:1fr;}}
@@ -187,12 +187,50 @@
   table.zones-table tr:last-child td{border-bottom:none;}
   .status-active{color:var(--gold);}
   .status-done{color:var(--text-faint);text-decoration:line-through;}
-  .zones-scroll{max-height:320px;overflow-y:auto;}
+  .zones-scroll{max-height:320px;overflow-y:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 
   footer{margin-top:28px;padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
   .disclaimer{font-size:11.5px;color:var(--text-faint);max-width:760px;line-height:1.6;}
   .reset-link{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);background:none;border:1px solid var(--border);padding:8px 14px;border-radius:2px;cursor:pointer;}
   .reset-link:hover{border-color:var(--gold-dim);color:var(--text);}
+
+  /* ---------- phone-sized screens ---------- */
+  @media (max-width:640px){
+    .wrap{padding:0 12px 28px;}
+    header{padding:14px 12px;gap:8px;}
+    .brand h1{font-size:16.5px;}
+    .brand .sub{font-size:10.5px;}
+    .brand .mark{font-size:11px;padding:2px 6px;}
+    .badges{gap:6px;width:100%;}
+    .badge{font-size:11px;padding:5px 8px;flex:1;text-align:center;}
+
+    #inputScreen{padding:28px 12px 12px;}
+    #inputScreen h2{font-size:20px;}
+    #inputScreen p.lead{font-size:13.5px;}
+    .source-tab{font-size:13px;padding:10px 10px;flex:1;text-align:center;}
+
+    .toolbar{position:sticky;top:0;background:var(--bg);z-index:5;padding-top:4px;margin-bottom:10px;}
+    .toggles{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:8px;padding-bottom:6px;}
+    .toggle{flex:0 0 auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:7px 12px;font-size:12px;white-space:nowrap;}
+    .reset-link{width:100%;padding:11px;font-size:13px;}
+
+    #chartContainer{height:320px;}
+    .panel-head{font-size:11.5px;padding:10px 12px;}
+
+    .setup-card{padding:13px 12px;}
+    .setup-dir{font-size:12px;padding:3px 8px;}
+    .setup-rows{font-size:13.5px;}
+    .mt5-ticket-head{font-size:12.5px;}
+    .copy-btn{padding:7px 12px;font-size:12px;min-height:32px;}
+
+    .calc-body{padding:12px;}
+    .field input,.field select{padding:9px 10px;font-size:14px;}
+
+    table.zones-table{font-size:11.5px;min-width:420px;}
+    .zones-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+    footer{padding:14px 12px;flex-direction:column;align-items:stretch;}
+  }
 </style>
 </head>
 <body>
@@ -228,6 +266,18 @@
 
     <div class="source-pane active" data-pane="demo">
       <div class="demo-grid">
+        <button class="demo-card" id="demo5m">
+          <span class="tf">XAU/USD · 5m</span>
+          <span class="desc">300 ta 5-daqiqalik candle — tez razgon/scalp uchun</span>
+        </button>
+        <button class="demo-card" id="demo15m">
+          <span class="tf">XAU/USD · 15m</span>
+          <span class="desc">300 ta 15-daqiqalik candle — qisqa muddatli razgon uchun</span>
+        </button>
+        <button class="demo-card" id="demo30m">
+          <span class="tf">XAU/USD · 30m</span>
+          <span class="desc">300 ta 30-daqiqalik candle — intraday razgon uchun</span>
+        </button>
         <button class="demo-card" id="demo4h">
           <span class="tf">XAU/USD · 4H</span>
           <span class="desc">180 ta 4-soatlik candle — swing-trade tahlili uchun</span>
@@ -237,7 +287,7 @@
           <span class="desc">180 ta kunlik candle — kattaroq struktura ko'rinishi uchun</span>
         </button>
       </div>
-      <div class="format-hint">Demo ma'lumot sintetik (o'quv/namoyish maqsadida) — real savdo qarori uchun o'z broker platformangizdagi haqiqiy narxlarni "CSV joylashtirish" orqali kiriting.</div>
+      <div class="format-hint">Demo ma'lumot sintetik (o'quv/namoyish maqsadida) — real savdo qarori uchun o'z broker platformangizdagi haqiqiy narxlarni "CSV joylashtirish" orqali kiriting. Kichik timeframe (5m/15m/30m) shovqin ko'proq bo'lgani uchun EMA trend filtri va yuqori timeframe struktura bilan tasdiqlab foydalaning.</div>
     </div>
 
     <div class="source-pane" data-pane="paste">
@@ -266,6 +316,8 @@
         <label class="toggle"><input type="checkbox" id="tgOB" checked> Order Blocklar</label>
         <label class="toggle"><input type="checkbox" id="tgFVG" checked> Fair Value Gap</label>
         <label class="toggle"><input type="checkbox" id="tgLiq" checked> Liquidity</label>
+        <label class="toggle"><input type="checkbox" id="tgOTE" checked> Fibonacci OTE</label>
+        <label class="toggle"><input type="checkbox" id="tgEMA" checked> EMA 20/50</label>
         <label class="toggle"><input type="checkbox" id="tgSetup" checked> Setup chiziqlari</label>
       </div>
       <button class="reset-link" id="resetBtn">↺ Yangi ma'lumot yuklash</button>
@@ -278,6 +330,11 @@
       </div>
 
       <div class="side-stack">
+        <div class="panel">
+          <div class="panel-head">Fibonacci OTE &amp; Trend filtri</div>
+          <div class="calc-result" id="fibPanel" style="margin:12px 14px;width:calc(100% - 28px);"></div>
+        </div>
+
         <div class="panel">
           <div class="panel-head">Faol Setuplar</div>
           <div class="format-hint" style="padding:10px 14px 0;">MT5: <b>F9</b> → Type: <i>Pending Order</i> → tegishli order turini tanlab, pastdagi qiymatlarni kiriting (yoki "Nusxalash" bosib to'liq matnni joylashtiring).</div>
@@ -466,12 +523,60 @@ function computeATR(data, period) {
   return last.reduce((a, b) => a + b, 0) / last.length;
 }
 
-function generateSetups(data, structure, obs, fvgs, liquidity, atr) {
+function computeEMA(data, period) {
+  const k = 2 / (period + 1);
+  const emas = new Array(data.length).fill(null);
+  if (data.length < period) return emas;
+  let sum = 0;
+  for (let i = 0; i < period; i++) sum += data[i].close;
+  emas[period - 1] = sum / period;
+  for (let i = period; i < data.length; i++) emas[i] = data[i].close * k + emas[i - 1] * (1 - k);
+  return emas;
+}
+
+// The "current impulse leg" = most recent confirmed swing point + the nearest
+// opposite-type swing before it. This is the leg ICT traders draw Fibonacci on
+// to find the OTE (Optimal Trade Entry, 61.8%-79% retracement) zone — the most
+// commonly used reference-point method for entries after a "razgon" (impulse) move.
+function findCurrentImpulseLeg(highs, lows, currentIndex) {
+  const all = highs.map(h => Object.assign({}, h, { type: 'high' }))
+    .concat(lows.map(l => Object.assign({}, l, { type: 'low' })))
+    .filter(s => s.index <= currentIndex)
+    .sort((a, b) => a.index - b.index);
+  if (all.length < 2) return null;
+  const last = all[all.length - 1];
+  for (let i = all.length - 2; i >= 0; i--) {
+    if (all[i].type !== last.type) {
+      const origin = all[i], end = last;
+      const direction = end.type === 'high' ? 'up' : 'down';
+      const top = direction === 'up' ? end.price : origin.price;
+      const bottom = direction === 'up' ? origin.price : end.price;
+      return { direction, top, bottom, originIndex: origin.index, endIndex: end.index };
+    }
+  }
+  return null;
+}
+function fibLevel(leg, ratio) {
+  return leg.direction === 'up' ? leg.top - (leg.top - leg.bottom) * ratio : leg.bottom + (leg.top - leg.bottom) * ratio;
+}
+function fibExtension(leg, ratio) {
+  return leg.direction === 'up' ? leg.top + (leg.top - leg.bottom) * ratio : leg.bottom - (leg.top - leg.bottom) * ratio;
+}
+function computeOTE(leg) {
+  if (!leg) return null;
+  const a = fibLevel(leg, 0.618), b = fibLevel(leg, 0.79);
+  return { top: Math.max(a, b), bottom: Math.min(a, b), direction: leg.direction };
+}
+
+function generateSetups(data, structure, obs, fvgs, liquidity, atr, ote, ema20, ema50) {
   const lastIndex = data.length - 1;
   const currentPrice = data[lastIndex].close;
   const pd = premiumDiscount(data, structure.highs, structure.lows, lastIndex);
   const buffer = atr * 0.25;
   const setups = [];
+  const lastEma20 = ema20[lastIndex], lastEma50 = ema50[lastIndex];
+  const emaBullish = lastEma20 !== null && lastEma50 !== null && lastEma20 > lastEma50;
+  const emaBearish = lastEma20 !== null && lastEma50 !== null && lastEma20 < lastEma50;
 
   function nearestLiquidityTarget(direction) {
     if (direction === 'bullish') {
@@ -495,6 +600,12 @@ function generateSetups(data, structure, obs, fvgs, liquidity, atr) {
   function overlapsAnyFVG(top, bottom, kind) {
     return fvgs.some(f => f.type === kind && !f.mitigated && f.bottom <= top && f.top >= bottom);
   }
+  function overlapsOTE(top, bottom, direction) {
+    if (!ote) return false;
+    const wantDir = direction === 'bullish' ? 'up' : 'down';
+    if (ote.direction !== wantDir) return false;
+    return bottom <= ote.top && top >= ote.bottom;
+  }
 
   const bullishOBs = obs.filter(o => o.type === 'bullish_ob' && !o.mitigated).sort((a, b) => b.formedAtEvent - a.formedAtEvent);
   const bearishOBs = obs.filter(o => o.type === 'bearish_ob' && !o.mitigated).sort((a, b) => b.formedAtEvent - a.formedAtEvent);
@@ -509,6 +620,8 @@ function generateSetups(data, structure, obs, fvgs, liquidity, atr) {
     if (pd && pd.zone === 'discount') tags.push('Discount');
     if (overlapsAnyFVG(ob.top, ob.bottom, 'bullish_fvg')) tags.push('FVG Confluence');
     if (ob.eventType === 'CHoCH') tags.push('CHoCH');
+    if (overlapsOTE(ob.top, ob.bottom, 'bullish')) tags.push('OTE Zone');
+    if (emaBullish) tags.push('EMA Trend');
     setups.push({ direction: 'bullish', entry, stop, target, rr, tags, sourceIndex: ob.candleIndex });
   }
   for (const ob of bearishOBs.slice(0, 6)) {
@@ -521,10 +634,12 @@ function generateSetups(data, structure, obs, fvgs, liquidity, atr) {
     if (pd && pd.zone === 'premium') tags.push('Premium');
     if (overlapsAnyFVG(ob.top, ob.bottom, 'bearish_fvg')) tags.push('FVG Confluence');
     if (ob.eventType === 'CHoCH') tags.push('CHoCH');
+    if (overlapsOTE(ob.top, ob.bottom, 'bearish')) tags.push('OTE Zone');
+    if (emaBearish) tags.push('EMA Trend');
     setups.push({ direction: 'bearish', entry, stop, target, rr, tags, sourceIndex: ob.candleIndex });
   }
   setups.sort((a, b) => (b.tags.length - a.tags.length) || (b.rr - a.rr));
-  return { setups, pd, trend: structure.trend, currentPrice };
+  return { setups, pd, trend: structure.trend, currentPrice, emaBullish, emaBearish };
 }
 
 function runFullAnalysis(data) {
@@ -534,8 +649,13 @@ function runFullAnalysis(data) {
   const fvgs = findFVGs(data);
   const liquidity = findLiquidityZones(data, structure.highs, structure.lows);
   const atr = computeATR(data);
-  const result = generateSetups(data, structure, obs, fvgs, liquidity, atr);
-  return Object.assign({ swings, structure, obs, fvgs, liquidity, atr }, result);
+  const ema20 = computeEMA(data, 20);
+  const ema50 = computeEMA(data, 50);
+  const impulseLeg = findCurrentImpulseLeg(structure.highs, structure.lows, data.length - 1);
+  const ote = computeOTE(impulseLeg);
+  const fibExtTargets = impulseLeg ? { ext127: fibExtension(impulseLeg, 0.272), ext161: fibExtension(impulseLeg, 0.618) } : null;
+  const result = generateSetups(data, structure, obs, fvgs, liquidity, atr, ote, ema20, ema50);
+  return Object.assign({ swings, structure, obs, fvgs, liquidity, atr, ema20, ema50, impulseLeg, ote, fibExtTargets }, result);
 }
 
 // ---------------- demo data ----------------
@@ -632,6 +752,15 @@ document.querySelectorAll('.source-tab').forEach(tab => {
   });
 });
 
+document.getElementById('demo5m').addEventListener('click', () => {
+  loadData(generateDemoData(300, 4340, 5, 5 * 60), 'XAU/USD · 5m (demo)');
+});
+document.getElementById('demo15m').addEventListener('click', () => {
+  loadData(generateDemoData(300, 4340, 15, 15 * 60), 'XAU/USD · 15m (demo)');
+});
+document.getElementById('demo30m').addEventListener('click', () => {
+  loadData(generateDemoData(300, 4340, 30, 30 * 60), 'XAU/USD · 30m (demo)');
+});
 document.getElementById('demo4h').addEventListener('click', () => {
   loadData(generateDemoData(180, 4340, 42, 4 * 3600), 'XAU/USD · 4H (demo)');
 });
@@ -673,7 +802,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   if (state.chart) { state.chart.remove(); state.chart = null; }
 });
 
-['tgStructure','tgOB','tgFVG','tgLiq','tgSetup'].forEach(id => {
+['tgStructure','tgOB','tgFVG','tgLiq','tgOTE','tgEMA','tgSetup'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => renderOverlays());
 });
 
@@ -691,6 +820,7 @@ function loadData(data, label) {
   renderOverlays();
   renderSetups();
   renderZonesTable();
+  renderFibPanel();
 }
 
 function fmt(n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -709,6 +839,8 @@ function renderHeaderBadges() {
   } else { zoneEl.textContent = '—'; zoneEl.className = 'badge'; }
 }
 
+function chartHeight() { return window.innerWidth < 640 ? 320 : 480; }
+
 function buildChart() {
   if (state.chart) { state.chart.remove(); }
   const container = document.getElementById('chartContainer');
@@ -716,21 +848,31 @@ function buildChart() {
   const styles = getComputedStyle(document.documentElement);
   const chart = LightweightCharts.createChart(container, {
     width: container.clientWidth,
-    height: 480,
+    height: chartHeight(),
     layout: { background: { color: 'transparent' }, textColor: styles.getPropertyValue('--text-dim').trim() || '#9c9184', fontFamily: 'JetBrains Mono, monospace', fontSize: 11 },
     grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
     rightPriceScale: { borderColor: styles.getPropertyValue('--border').trim() || '#2c281f' },
     timeScale: { borderColor: styles.getPropertyValue('--border').trim() || '#2c281f', timeVisible: true, secondsVisible: false },
     crosshair: { mode: 0 },
+    handleScroll: { vertTouchDrag: false },
   });
   const series = chart.addCandlestickSeries({
     upColor: '#5aa579', downColor: '#c66a5b', borderVisible: false,
     wickUpColor: '#5aa579', wickDownColor: '#c66a5b',
   });
   series.setData(state.data.map(d => ({ time: d.time, open: d.open, high: d.high, low: d.low, close: d.close })));
+
+  const emaSeries20 = chart.addLineSeries({ color: '#7fa3c4', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
+  const emaSeries50 = chart.addLineSeries({ color: '#c9a15a', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
+  const a0 = state.analysis;
+  if (a0) {
+    emaSeries20.setData(state.data.map((d, i) => ({ time: d.time, value: a0.ema20[i] })).filter(p => p.value !== null));
+    emaSeries50.setData(state.data.map((d, i) => ({ time: d.time, value: a0.ema50[i] })).filter(p => p.value !== null));
+  }
+
   chart.timeScale().fitContent();
-  state.chart = chart; state.series = series;
-  window.addEventListener('resize', () => { chart.applyOptions({ width: container.clientWidth }); });
+  state.chart = chart; state.series = series; state.emaSeries20 = emaSeries20; state.emaSeries50 = emaSeries50;
+  window.addEventListener('resize', () => { chart.applyOptions({ width: container.clientWidth, height: chartHeight() }); });
 }
 
 function renderOverlays() {
@@ -745,7 +887,12 @@ function renderOverlays() {
   const showOB = document.getElementById('tgOB').checked;
   const showFVG = document.getElementById('tgFVG').checked;
   const showLiq = document.getElementById('tgLiq').checked;
+  const showOTE = document.getElementById('tgOTE').checked;
+  const showEMA = document.getElementById('tgEMA').checked;
   const showSetup = document.getElementById('tgSetup').checked;
+
+  if (state.emaSeries20) state.emaSeries20.applyOptions({ visible: showEMA });
+  if (state.emaSeries50) state.emaSeries50.applyOptions({ visible: showEMA });
 
   if (showStructure) {
     const markers = a.structure.events.map(ev => ({
@@ -780,6 +927,9 @@ function renderOverlays() {
         title: (z.type === 'sellside_target_equal_highs' ? 'Liq↑' : 'Liq↓') + ' x' + z.count,
       }));
     });
+  }
+  if (showOTE && a.ote) {
+    addZoneLines(a.ote.top, a.ote.bottom, '#b18ad1', 'OTE');
   }
   if (showSetup) {
     a.setups.slice(0, 3).forEach((s, i) => {
@@ -879,6 +1029,23 @@ function renderSetups() {
   list.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => copyTicket(btn, state.tickets[parseInt(btn.dataset.idx, 10)].ticketText));
   });
+}
+
+function renderFibPanel() {
+  const box = document.getElementById('fibPanel');
+  const a = state.analysis;
+  const rows = [];
+  if (a.impulseLeg) {
+    rows.push(['Joriy impuls (razgon)', (a.impulseLeg.direction === 'up' ? 'Yuqoriga ↑' : 'Pastga ↓') + '  (' + fmt(a.impulseLeg.bottom) + ' – ' + fmt(a.impulseLeg.top) + ')']);
+    rows.push(['OTE zona (61.8–79%)', fmt(a.ote.bottom) + ' – ' + fmt(a.ote.top)]);
+    rows.push(['Fib kengaytma 127%', fmt(a.fibExtTargets.ext127)]);
+    rows.push(['Fib kengaytma 161%', fmt(a.fibExtTargets.ext161)]);
+  } else {
+    rows.push(['Joriy impuls', 'Aniqlanmadi (ma\'lumot kam)']);
+  }
+  const emaStatus = a.emaBullish ? 'Bullish (EMA20 > EMA50)' : a.emaBearish ? 'Bearish (EMA20 < EMA50)' : 'Aniqlanmagan';
+  rows.push(['EMA trend filtri', emaStatus]);
+  box.innerHTML = rows.map(r => '<span class="lbl">' + r[0] + '</span><span>' + r[1] + '</span>').join('');
 }
 
 function renderZonesTable() {
